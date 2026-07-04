@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: portfolio-raghad
+    name: portfolio-ali-salhab
     env: node
     plan: free
     buildCommand: npm install && npm install --prefix frontend && npm install --prefix backend && npm run build --prefix frontend && npm run build --prefix backend
@@ -15,4 +15,4 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://raghad-ahmad.onrender.com
+        value: https://ali-salhab.onrender.com

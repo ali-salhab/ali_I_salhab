@@ -23,7 +23,7 @@ export default function Footer({ personal }: FooterProps) {
 
           {/* Copyright */}
           <p className="text-white/30 text-sm flex items-center gap-1.5">
-            © {year} — Built by <Heart size={12} className="text-violet-400" fill="currentColor" /> Ali SAlhab
+            © {year} — Built by <Heart size={12} className="text-violet-400" fill="currentColor" /> {personal.name}
           </p>
 
           {/* Social links */}

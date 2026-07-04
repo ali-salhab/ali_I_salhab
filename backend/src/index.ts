@@ -13,6 +13,31 @@ const app = express()
 const PORT = process.env.PORT || 5000
 const isProd = process.env.NODE_ENV === 'production'
 
+function buildAllowedOrigins() {
+  const frontendUrl = process.env.FRONTEND_URL || ''
+  if (!frontendUrl) {
+    return []
+  }
+
+  const origins = new Set<string>([frontendUrl])
+
+  try {
+    const url = new URL(frontendUrl)
+    const host = url.hostname
+    const protocol = url.protocol
+
+    if (host.startsWith('www.')) {
+      origins.add(`${protocol}//${host.slice(4)}`)
+    } else {
+      origins.add(`${protocol}//www.${host}`)
+    }
+  } catch {
+    // Ignore invalid URLs and fall back to the configured value.
+  }
+
+  return [...origins]
+}
+
 // Rate limiting for API
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -23,7 +48,7 @@ const apiLimiter = rateLimit({
 
 // CORS
 const allowedOrigins = isProd
-  ? [process.env.FRONTEND_URL || ''].filter(Boolean)
+  ? buildAllowedOrigins()
   : ['http://localhost:5173', 'http://localhost:4173']
 
 app.use(cors({
@@ -33,8 +58,8 @@ app.use(cors({
     // In production, also allow same-host requests dynamically
     if (isProd) {
       const appUrl = process.env.FRONTEND_URL || ''
-      // Accept if origin matches FRONTEND_URL or any *.onrender.com subdomain of this service
-      if (!appUrl || origin === appUrl || origin.endsWith('.onrender.com')) {
+      // Accept the configured domain, its www variant, or same-origin container requests.
+      if (!appUrl || allowedOrigins.includes(origin) || origin.endsWith('.onrender.com')) {
         return cb(null, true)
       }
     }
